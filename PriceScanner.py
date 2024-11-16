@@ -1,4 +1,5 @@
 import json
+import platform
 import traceback
 
 from devtools.logger import set_log_level, log
@@ -52,7 +53,10 @@ def load_driver(proxy=None):
         log(f"Using proxy: {proxy}")
         chrome_options.add_argument(f'--proxy-server={proxy}')
 
-    service = Service(ChromeDriverManager().install())
+    if platform.system() == "Windows":
+        service = Service(ChromeDriverManager().install())
+    else:
+        service = Service("/usr/bin/chromedriver")
     driver = webdriver.Chrome(service=service, options=chrome_options)
 
     # Set custom headers
