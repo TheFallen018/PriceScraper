@@ -228,7 +228,10 @@ def scrape_with_proxies(driver, url, proxies, page_number, max_page_number):
 
 
     while True:
-        attempts = 6
+        if max_page_number == -1:
+            attempts = 6
+        else:
+            attempts = 2
         log(f"Scraping {url}")
         success = False
         skip_page = False
@@ -251,7 +254,7 @@ def scrape_with_proxies(driver, url, proxies, page_number, max_page_number):
                         attempts -= 1
                         success = False
                     if attempts == 0:
-                        log("Max page number could not be found within 6 attempts. Skipping page")
+                        log("Max page number could not be found within  attempts. Skipping page")
                         break
                     log(f"Max page number is {max_page_number}")
         except Exception as e:
@@ -262,10 +265,12 @@ def scrape_with_proxies(driver, url, proxies, page_number, max_page_number):
                 products, success = scrape_coles(page_source)
                 if len(products) == 0 and page_number < max_page_number:
                     log(f"Page {page_number} is empty")
+                    with open(f"empty_page_{page_number}.html", "wb") as f:
+                        f.write(page_source.encode('utf-8', 'ignore'))
                     attempts -= 1
                     success = False
                     if attempts == 0:
-                        log("Page could not be scraped within 6 attempts. Skipping page")
+                        log("Page could not be scraped within 2 attempts. Skipping page")
                         break
         except Exception as e:
             log(f"Error occurred while scraping products {e}")
