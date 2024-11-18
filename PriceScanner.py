@@ -168,6 +168,20 @@ def check_source_errors(page_source, proxies):
     return success, skip_page
 
 
+def human_like_scroll(driver):
+    # Scroll to the bottom of the page
+    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+    time.sleep(random.uniform(1, 3))
+
+def human_like_mouse_movements(driver):
+    # Move the mouse to a random position on the page
+    action = ActionChains(driver)
+    for _ in range(random.randint(5, 10)):
+        x_offset = random.randint(0, driver.execute_script("return document.body.scrollWidth"))
+        y_offset = random.randint(0, driver.execute_script("return document.body.scrollHeight"))
+        action.move_by_offset(x_offset, y_offset).perform()
+        time.sleep(random.uniform(0.5, 1.5))
+
 def get_source(driver, url):
     # Ensure the URL uses http instead of https
     url = url.replace("https://", "http://")
@@ -175,8 +189,9 @@ def get_source(driver, url):
     try:
         driver.delete_all_cookies()
         driver.get(url)
+        human_like_scroll(driver)
+        human_like_mouse_movements(driver)
     except Exception as e:
-
         if "net::ERR_PROXY_CONNECTION_FAILED" in str(e):
             log("Proxy connection failed")
             return "", False
@@ -194,7 +209,6 @@ def get_source(driver, url):
     with open("page_source.html", "wb") as f:
         f.write(page_source.encode('utf-8', 'ignore'))
         log("Writing page source to page_source.html")
-
 
     # Check for <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
     if '<meta name="ROBOTS" content="NOINDEX, NOFOLLOW">' in page_source:
