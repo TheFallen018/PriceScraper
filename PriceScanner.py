@@ -211,6 +211,9 @@ def get_source(driver, url):
         elif "HTTPConnectionPool" in str(e) or r"Message: timeout: Timed out receiving message from renderer" in str(e) or "Read timed out." in str(e):
             log("Read timed out")
             return "", False
+        elif "net::ERR_CONNECTION_CLOSED" in str(e):
+            log("Connection closed")
+            return "", False
         else:
             traceback.print_exc()
             log(e)
