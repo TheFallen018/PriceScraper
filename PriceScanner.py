@@ -214,6 +214,12 @@ def get_source(driver, url):
         elif "net::ERR_CONNECTION_CLOSED" in str(e):
             log("Connection closed")
             return "", False
+        elif "net::ERR_CONNECTION_RESET" in str(e):
+            log("Connection reset")
+            return "", False
+        elif "net::ERR_PROXY_AUTH_UNSUPPORTED" in str(e):
+            log("Proxy authentication unsupported")
+            return "", False
         else:
             traceback.print_exc()
             log(e)
