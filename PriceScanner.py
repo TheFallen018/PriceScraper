@@ -169,18 +169,31 @@ def check_source_errors(page_source, proxies):
 
 
 def human_like_scroll(driver):
-    # Scroll to the bottom of the page
-    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+    # Get the maximum scroll height
+    max_scroll_height = driver.execute_script("return document.body.scrollHeight")
+
+    # Calculate a random scroll position within the bounds
+    scroll_position = random.randint(0, max_scroll_height)
+
+    # Scroll to the calculated position
+    driver.execute_script(f"window.scrollTo(0, {scroll_position});")
     time.sleep(random.uniform(1, 3))
 
+
+from selenium.common.exceptions import MoveTargetOutOfBoundsException
+
 def human_like_mouse_movements(driver):
-    # Move the mouse to a random position on the page
+    # Move the mouse to a random position within the viewport
     action = ActionChains(driver)
-    for _ in range(random.randint(5, 10)):
-        x_offset = random.randint(0, driver.execute_script("return document.body.scrollWidth"))
-        y_offset = random.randint(0, driver.execute_script("return document.body.scrollHeight"))
-        action.move_by_offset(x_offset, y_offset).perform()
-        time.sleep(random.uniform(0.5, 1.5))
+
+    for _ in range(2):
+        x_offset = random.randint(-0, 900)
+        y_offset = random.randint(0, 500)
+        try:
+            action.move_by_offset(x_offset, y_offset).perform()
+        except MoveTargetOutOfBoundsException as e:
+            pass
+        time.sleep(random.uniform(0.2, 0.5))
 
 def get_source(driver, url):
     # Ensure the URL uses http instead of https
@@ -240,13 +253,13 @@ def scrape_coles_page_numbers(page_source):
 def scrape_with_proxies(driver, url, proxies, page_number, max_page_number):
     products = []
 
+    log(f"Scraping {url}")
 
     while True:
         if max_page_number == -1:
             attempts = 6
         else:
             attempts = 2
-        log(f"Scraping {url}")
         success = False
         skip_page = False
 
@@ -373,7 +386,6 @@ def main():
         ("https://www.coles.com.au/browse/baby?page=", -1),
         ("https://www.coles.com.au/browse/pet?page=", -1),
         ("https://www.coles.com.au/browse/liquor?page=", -1),
-        ("https://www.coles.com.au/browse/tobacco?page=", -1),
 
     ]
 
