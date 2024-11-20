@@ -220,6 +220,9 @@ def get_source(driver, url):
         elif "net::ERR_PROXY_AUTH_UNSUPPORTED" in str(e):
             log("Proxy authentication unsupported")
             return "", False
+        elif "net::ERR_TUNNEL_CONNECTION_FAILED" in str(e):
+            log("Tunnel connection failed")
+            return "", False
         else:
             traceback.print_exc()
             log(e)
